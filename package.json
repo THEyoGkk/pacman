@@ -1,0 +1,14 @@
+{
+  "name": "FlyBox",
+  "version": "0.0.0",
+  "description": "FlyBox",
+  "main": "server.js",
+  "author": {
+    "name": "Arsenal",
+    "email": ""
+  },
+  "dependencies": {
+    "express": "~4.12.3",
+    "ws": "~0.7.1"
+  }
+}

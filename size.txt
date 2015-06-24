@@ -1,0 +1,24 @@
+original
+width - 28  (224)
+height - 36 (288)
+
+mine
+
+width *  2 = 448  + 2
+heigth * 2 = 576  + 2 
+
+
+square = 20 
+
+pacman
+
+
+
+
+
+keys
+
+UP 38
+DOWN 40
+LEFT 37
+RIGHT 39

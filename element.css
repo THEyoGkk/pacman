@@ -1,0 +1,18 @@
+.element{
+	position: absolute;	
+	width: 37px;
+	height: 37px;
+	left: 0px;
+	top: 0px;
+	background-image: url("pacman.png");	
+
+}
+
+canvas{
+	border: 1px solid black; 
+	position: fixed;
+  	top: 50%;
+  	left: 50%;
+    transform: translate(-50%, -50%);
+}
+
