@@ -50,7 +50,8 @@ function KeyBox(){
 KeyBox.prototype.move = function(dx,dy) {
     pacmanLayer = document.getElementById("pacman").getContext('2d');
     pacmanLayer.clearRect(0, 0, document.getElementById("pacman").width, document.getElementById("pacman").height);
-    drawPacman(dx,dy);	
+    drawPacman(dx,dy);
+    eatCoin(coinsLayer,dx,dy);
 };
 
 
@@ -88,4 +89,8 @@ function drawPacman(x,y) {
         pacmanLayer.lineTo(x + 7,y + 4);
         pacmanLayer.fillStyle = "#ff0";
         pacmanLayer.fill();    
+}
+function eatCoin(ctx,x,y) {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(x,y,4,4);
 }

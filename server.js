@@ -38,7 +38,7 @@ var coinsMap = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
        [0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0],
        [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
        [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
-       [0,1,1,1,0,0,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,0,0,1,1,1,0],
+       [0,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0],
        [0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0],
        [0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0],
        [0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0],
@@ -96,6 +96,10 @@ function drawPacmanImg(ws) {
 }
 
 function pacmanMove(keyCode,ws){
+	if (!pacmanNextPointValidation(keyCode)) {
+		console.log("wrong point");
+		return;
+	}
 	console.log("move");
 	if(keyCode == 37){
 		ws.send(JSON.stringify({pacman:"pacmanMovement"
@@ -125,6 +129,29 @@ function pacmanMove(keyCode,ws){
 	return;
 }
 
+function pacmanNextPointValidation(keyCode) {
+	var currentX = pacman.x - 0.5;
+	var currentY = pacman.y - 0.5;
+	console.log(currentX);console.log(currentY);
+	if (keyCode == 37){		
+		if ( coinsMap[currentY][currentX - 1] == 1 ) {			
+			return true;
+		}
+	}else if (keyCode == 38) {
+		if (coinsMap[currentY - 1][currentX] == 1) {
+			return true;
+		}
+	}else if (keyCode == 39) {
+		if (coinsMap[currentY][currentX + 1] == 1) {
+			return true;
+		}
+	}else if (keyCode == 40) {
+		if (coinsMap[currentY + 1][currentX] == 1) {
+			return true;
+		}
+	}
+	return false;
+}
 
 
 
