@@ -26,7 +26,7 @@ var coinsMap = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
        [0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0],
        [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0],
        [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0],
-       [0,0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0],
+       [0,0,0,0,0,0,1,0,0,1,1,1,3,1,1,3,1,1,1,0,0,1,0,0,0,0,0,0],
        [0,0,0,0,0,0,1,0,0,1,0,0,0,2,2,0,0,0,1,0,0,1,0,0,0,0,0,0],
        [0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0],
        [0,0,0,0,0,0,1,1,1,1,0,0,2,2,2,2,0,0,1,1,1,1,0,0,0,0,0,0],
@@ -38,7 +38,7 @@ var coinsMap = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
        [0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0],
        [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
        [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
-       [0,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0],
+       [0,1,1,1,0,0,1,1,1,1,1,1,3,1,1,3,1,1,1,1,1,1,0,0,1,1,1,0],
        [0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0],
        [0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0],
        [0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0],
@@ -73,6 +73,9 @@ function drawCoinsMap(ws){
 function pacmanInit(ws){
 	console.log("\npacmanInit...")
 	pacman = new Pacman();
+	blinky = new Blinky();
+	console.log(blinky['initSearch']);
+	blinky.initSearch();
 	ws.send(JSON.stringify({pacman:"hello!"}));
 }
 
@@ -132,26 +135,83 @@ function pacmanMove(keyCode,ws){
 function pacmanNextPointValidation(keyCode) {
 	var currentX = pacman.x - 0.5;
 	var currentY = pacman.y - 0.5;
-	console.log(currentX);console.log(currentY);
+	
 	if (keyCode == 37){		
-		if ( coinsMap[currentY][currentX - 1] == 1 ) {			
+		if ( coinsMap[currentY][currentX - 1] !== 0 ) {			
 			return true;
 		}
 	}else if (keyCode == 38) {
-		if (coinsMap[currentY - 1][currentX] == 1) {
+		if (coinsMap[currentY - 1][currentX] !== 0 ) {
 			return true;
 		}
 	}else if (keyCode == 39) {
-		if (coinsMap[currentY][currentX + 1] == 1) {
+		if (coinsMap[currentY][currentX + 1] !== 0 ) {
 			return true;
 		}
 	}else if (keyCode == 40) {
-		if (coinsMap[currentY + 1][currentX] == 1) {
+		if (coinsMap[currentY + 1][currentX] !== 0 ) {
 			return true;
 		}
 	}
 	return false;
 }
+
+
+
+/*
+ *Blinky
+ */
+
+var blinky = null;
+
+function Blinky() {
+	this.currX = 13.5;
+	this.currY = 11.5;
+	this.prevX = 0;
+	this.prevY = 0;
+	
+}
+
+function drawBlinky(ws) {
+	ws.send(JSON.stringify({pacman:"blinkyImg",x:((blinky.currX)  * 16).toString()
+											  ,y:((blinky.currY) * 16).toString()}));
+}
+
+Blinky.prototype.move = function (){
+	console.log("!!");
+	var validPoints = blinky.resolveValidNewPoints();
+	console.log(validPoints);
+}
+Blinky.prototype.findTargetPoint = function(){
+	
+}
+Blinky.prototype.resolveValidNewPoints = function(){
+	var validPoints = [];
+	if (coinsMap[blinky.currY][blinky.currX - 1] !== 0) {
+		validPoints.push({ "x":blinkty.currX - 1, "y": blinky.currY });
+	}
+	if (coinsMap[blinky.currY- 1][blinky.currX ] !== 0) {
+		validPoints.push({ "x":blinkty.currX, "y": blinky.currY - 1 });
+	}
+	if (coinsMap[blinky.currY][blinky.currX + 1] !== 0) {
+		validPoints.push({ "x":blinkty.currX + 1, "y": blinky.currY });
+	}
+	if (coinsMap[blinky.currY + 1][blinky.currX] !== 0) {
+		validPoints.push({ "x":blinkty.currX, "y": blinky.currY + 1 });
+	}
+	
+	return validPoints;
+}
+
+Blinky.prototype.initSearch = function (){
+	
+	while(blinky.currX != pacman.x && blinky.currY != pacman.y){
+		console.log("!!");
+		blinky.move();
+	}
+}
+
+
 
 
 
@@ -166,7 +226,8 @@ wss.on("connection", function (ws) {
         	case "init":
         		gameInit(ws);
 				drawPacmanImg(ws);
-				drawCoinsMap(ws);				
+				drawCoinsMap(ws);
+				drawBlinky(ws);
         		break;
         	case "pacman":
         		pacmanMove(clientMessage.keyCode,ws);

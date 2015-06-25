@@ -1,13 +1,14 @@
 var pacman = null;
 var coinsLayer;
 var pacmanLayer;
+var blinkyLayer;
 var socket = new WebSocket("ws://localhost:1337");
 
 socket.onmessage = function (event) {
     var box = JSON.parse(event.data);
     switch (box.pacman) {
         case "hello!":
-            pacman = new KeyBox();  
+            pacman = new KeyBox();          
             break; 
         case "pacmanMovement":        
             pacman.move(parseInt(box.left,10),parseInt(box.top,10));
@@ -17,6 +18,9 @@ socket.onmessage = function (event) {
             break;
         case "pacmanImg":
             drawPacman(parseInt(box.x,10),parseInt(box.y,10));
+            break;
+        case "blinkyImg":
+            drawBlinky(parseInt(box.x,10),parseInt(box.y,10));
             break;
         default:
             break;
@@ -38,11 +42,11 @@ function pacmanMove(e){
 }
 
 function KeyBox(){
-	this.node = document.getElementById("square");
+	/*this.node = document.getElementById("square");
 	this.left = 0;
     this.top = 0;
     this.width = this.node.clientWidth;
-    this.height = this.node.clientHeight;
+    this.height = this.node.clientHeight;*/
     this.dx = 16;
     this.dy = 16;
 }
@@ -62,15 +66,11 @@ function draw(){
         base_image = new Image();
         base_image.src = 'img/map.jpg';
         base_image.onload = function(){
-        mapLayer.drawImage(base_image, -4, -5, 448 + 8, 496 + 8);
+        mapLayer.drawImage(base_image, -4, -5, 448 + 8, 496 + 8);        
+  }
         coinsLayer = document.getElementById("coins").getContext('2d');
         pacmanLayer = document.getElementById("pacman").getContext('2d');
-       
-   
-        //drawBorders(coinsLayer,1,1,448,576,8,16);
-        
-    
-  }
+        blinkyLayer = document.getElementById("blinky").getContext('2d');
 }
 
 function drawCoinsMap(x,y) {
@@ -81,6 +81,7 @@ function drawCoin(ctx,x,y) {
     ctx.fillStyle = '#ff0';
     ctx.fillRect(x,y,4,4);
 }
+
 
 function drawPacman(x,y) {   
         pacmanLayer.beginPath();
@@ -94,3 +95,15 @@ function eatCoin(ctx,x,y) {
     ctx.fillStyle = '#000';
     ctx.fillRect(x,y,4,4);
 }
+
+
+
+
+function drawBlinky(x,y){
+   blinkyLayer.beginPath();
+    blinkyLayer.fillStyle = "red";
+    blinkyLayer.moveTo(x,y + 8);
+    blinkyLayer.bezierCurveTo(x,y-16,x+16,y-16,x+16,y + 8);   
+    blinkyLayer.fill();     
+}
+
