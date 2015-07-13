@@ -4,6 +4,7 @@ var express = require("express")
 var app = express()
 var port = process.env.PORT || 1337
 
+var vSCodeString = "new string to test how built in git works";
 app.use(express.static(__dirname + "/"))
 
 var server = http.createServer(app)
