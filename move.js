@@ -42,11 +42,6 @@ function pacmanMove(e){
 }
 
 function KeyBox(){
-	/*this.node = document.getElementById("square");
-	this.left = 0;
-    this.top = 0;
-    this.width = this.node.clientWidth;
-    this.height = this.node.clientHeight;*/
     this.dx = 16;
     this.dy = 16;
 }
@@ -63,7 +58,7 @@ KeyBox.prototype.move = function(dx,dy) {
 function draw(){
         var canvas = document.getElementById('map');
         var mapLayer = canvas.getContext('2d'); 
-        base_image = new Image();
+        var base_image = new Image();
         base_image.src = 'img/map.jpg';
         base_image.onload = function(){
         mapLayer.drawImage(base_image, -4, -5, 448 + 8, 496 + 8);        
@@ -100,10 +95,11 @@ function eatCoin(ctx,x,y) {
 
 
 function drawBlinky(x,y){
-   blinkyLayer.beginPath();
-    blinkyLayer.fillStyle = "red";
+    blinkyLayer.clearRect(0, 0, document.getElementById("blinky").width, document.getElementById("blinky").height);
+    blinkyLayer.beginPath();   
     blinkyLayer.moveTo(x,y + 8);
-    blinkyLayer.bezierCurveTo(x,y-16,x+16,y-16,x+16,y + 8);   
+    blinkyLayer.bezierCurveTo(x,y-16,x+16,y-16,x+16,y + 8); 
+    blinkyLayer.fillStyle = "red";  
     blinkyLayer.fill();     
 }
 

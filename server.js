@@ -4,7 +4,6 @@ var express = require("express")
 var app = express()
 var port = process.env.PORT || 1337
 
-var vSCodeString = "new string to test how built in git works";
 app.use(express.static(__dirname + "/"))
 
 var server = http.createServer(app)
@@ -16,6 +15,7 @@ var wss = new WebSocketServer({ server: server })
 console.log("\nwebsocket server created")
 
 
+var blinkyInterval;
 var coinsMap = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
        [0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0],
        [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0],
@@ -27,8 +27,8 @@ var coinsMap = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
        [0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,0],
        [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0],
        [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0],
-       [0,0,0,0,0,0,1,0,0,1,1,1,3,1,1,3,1,1,1,0,0,1,0,0,0,0,0,0],
-       [0,0,0,0,0,0,1,0,0,1,0,0,0,2,2,0,0,0,1,0,0,1,0,0,0,0,0,0],
+       [0,0,0,0,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0],
+       [0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0],
        [0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0],
        [0,0,0,0,0,0,1,1,1,1,0,0,2,2,2,2,0,0,1,1,1,1,0,0,0,0,0,0],
        [0,0,0,0,0,0,1,0,0,1,0,0,2,2,2,2,0,0,1,0,0,1,0,0,0,0,0,0],
@@ -74,8 +74,7 @@ function drawCoinsMap(ws){
 function pacmanInit(ws){
 	console.log("\npacmanInit...")
 	pacman = new Pacman();
-	blinky = new Blinky();
-	console.log(blinky['initSearch']);
+	blinky = new Blinky(ws);
 	blinky.initSearch();
 	ws.send(JSON.stringify({pacman:"hello!"}));
 }
@@ -165,51 +164,94 @@ function pacmanNextPointValidation(keyCode) {
 
 var blinky = null;
 
-function Blinky() {
-	this.currX = 13.5;
-	this.currY = 11.5;
+function Blinky(wS) {
+	this.currX = 13;
+	this.currY = 11;
+	this.mapX = 13;
+	this.mapY = 11;
 	this.prevX = 0;
-	this.prevY = 0;
-	
+	this.prevY = 0;	
+	this.ws = wS;	
 }
 
 function drawBlinky(ws) {
 	ws.send(JSON.stringify({pacman:"blinkyImg",x:((blinky.currX)  * 16).toString()
-											  ,y:((blinky.currY) * 16).toString()}));
+											  ,y:((blinky.currY + 0.5) * 16).toString()}));
+    blinky.prevX = blinky.mapX;
+	blinky.prevY = blinky.mapY;
 }
 
+Blinky.prototype.initSearch = function (){	
+	blinkyInterval = setInterval(blinky.move,500);
+}
 Blinky.prototype.move = function (){
 	console.log("!!");
 	var validPoints = blinky.resolveValidNewPoints();
-	console.log(validPoints);
-}
-Blinky.prototype.findTargetPoint = function(){
-	
+	var targetPoint = blinky.findTargetPoint(validPoints);
+	blinky.drawNewBlinky(blinky.ws,targetPoint.points.x,targetPoint.points.y);
 }
 Blinky.prototype.resolveValidNewPoints = function(){
 	var validPoints = [];
-	if (coinsMap[blinky.currY][blinky.currX - 1] !== 0) {
-		validPoints.push({ "x":blinkty.currX - 1, "y": blinky.currY });
+	if (coinsMap[blinky.mapY][blinky.mapX - 1] !== 0) {
+		validPoints.push({ "x":blinky.mapX - 1, "y": blinky.mapY });
 	}
-	if (coinsMap[blinky.currY- 1][blinky.currX ] !== 0) {
-		validPoints.push({ "x":blinkty.currX, "y": blinky.currY - 1 });
+	if (coinsMap[blinky.mapY - 1][blinky.mapX ] !== 0) {
+		validPoints.push({ "x":blinky.mapX, "y": blinky.mapY - 1 });
 	}
-	if (coinsMap[blinky.currY][blinky.currX + 1] !== 0) {
-		validPoints.push({ "x":blinkty.currX + 1, "y": blinky.currY });
+	if (coinsMap[blinky.mapY][blinky.mapX + 1] !== 0) {
+		validPoints.push({ "x":blinky.mapX + 1, "y": blinky.mapY });
 	}
-	if (coinsMap[blinky.currY + 1][blinky.currX] !== 0) {
-		validPoints.push({ "x":blinkty.currX, "y": blinky.currY + 1 });
+	if (coinsMap[blinky.mapY + 1][blinky.mapX] !== 0) {
+		validPoints.push({ "x":blinky.mapX, "y": blinky.mapY + 1 });
 	}
-	
+	console.log(validPoints);	
 	return validPoints;
 }
-
-Blinky.prototype.initSearch = function (){
-	
-	while(blinky.currX != pacman.x && blinky.currY != pacman.y){
-		console.log("!!");
-		blinky.move();
+Blinky.prototype.findTargetPoint = function(validPoints){
+	var targetPoints = validPoints;
+	for (var i = 0; i < targetPoints.length; i++) {
+		if(targetPoints[i].x === blinky.prevX && targetPoints[i].y === blinky.prevY){
+			targetPoints[i] = null;
+		}
 	}
+	
+	var pointsWithoutTurningBack = [];
+	for (var j = 0; j < targetPoints.length; j++) {
+		if(targetPoints[j] !== null){
+			pointsWithoutTurningBack.push(targetPoints[j]);
+		}		
+	}
+	console.log(targetPoints);
+	var vectorToPacman = [];
+	if(pointsWithoutTurningBack.length === 1){
+		vectorToPacman[0] = {};
+		vectorToPacman[0].points = {x: pointsWithoutTurningBack[0].x,
+								 y: pointsWithoutTurningBack[0].y };
+		return vectorToPacman[0];
+	}
+	
+	for (var k = 0; k < pointsWithoutTurningBack.length; k++) {
+		var vectorX = Math.abs( pacman.x - pointsWithoutTurningBack[k].x ) * Math.abs( pacman.x - pointsWithoutTurningBack[k].x );
+		var vectorY = Math.abs( pacman.y - pointsWithoutTurningBack[k].y ) * Math.abs( pacman.y - pointsWithoutTurningBack[k].y );
+		vectorToPacman[k] = {};
+		vectorToPacman[k].value =  Math.sqrt(vectorX + vectorY);
+		vectorToPacman[k].points = {x: pointsWithoutTurningBack[k].x,
+									y: pointsWithoutTurningBack[k].y };	
+	}
+	vectorToPacman.sort(function(a,b){return a.value - b.value});
+	console.log(vectorToPacman);
+	
+	return vectorToPacman[0];		
+}
+Blinky.prototype.drawNewBlinky = function(ws,x,y){
+	
+	console.log(x,y);
+	ws.send(JSON.stringify({pacman:"blinkyImg",x:((x)  * 16).toString()
+											  ,y:((y + 0.5) * 16).toString()}));
+    blinky.prevX = blinky.mapX;
+	blinky.prevY = blinky.mapY;
+	blinky.mapX = x;
+	blinky.mapY = y;
 }
 
 
