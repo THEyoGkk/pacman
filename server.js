@@ -236,7 +236,7 @@ Blinky.prototype.findTargetPoint = function(validPoints){
 		vectorToPacman[k] = {};
 		vectorToPacman[k].value =  Math.sqrt(vectorX + vectorY);
 		vectorToPacman[k].points = {x: pointsWithoutTurningBack[k].x,
-									y: pointsWithoutTurningBack[k].y };
+									y: pointsWithoutTurningBack[k].y }; 
 	}
 	vectorToPacman.sort(function(a,b){return a.value - b.value});
 	console.log(vectorToPacman);
